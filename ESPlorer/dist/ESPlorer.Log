@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="windows-1252" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2017-03-09T02:02:37</date>
+  <millis>1489053757981</millis>
+  <sequence>6</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>Load saved settings: Firmware:NodeMCU</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:37</date>
+  <millis>1489053757989</millis>
+  <sequence>7</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>Snippets: loading...</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:37</date>
+  <millis>1489053757999</millis>
+  <sequence>8</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>Snippets load: Success.</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:38</date>
+  <millis>1489053758166</millis>
+  <sequence>9</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>Set new color theme: Success.</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:38</date>
+  <millis>1489053758191</millis>
+  <sequence>10</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>Load saved settings: DONE.</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:38</date>
+  <millis>1489053758193</millis>
+  <sequence>11</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>Snippets: loading...</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:38</date>
+  <millis>1489053758199</millis>
+  <sequence>12</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>Snippets load: Success.</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:38</date>
+  <millis>1489053758708</millis>
+  <sequence>13</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>Scan system...</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:38</date>
+  <millis>1489053758723</millis>
+  <sequence>14</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>found COM1</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:38</date>
+  <millis>1489053758726</millis>
+  <sequence>15</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>found last saved serial port COM4</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:38</date>
+  <millis>1489053758730</millis>
+  <sequence>16</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>Scan done.</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:54</date>
+  <millis>1489053774739</millis>
+  <sequence>17</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>FileTab cleared: Success.</message>
+</record>
+<record>
+  <date>2017-03-09T02:02:54</date>
+  <millis>1489053774740</millis>
+  <sequence>18</sequence>
+  <logger>ESPlorer.ESPlorer</logger>
+  <level>INFO</level>
+  <class>ESPlorer.ESPlorer</class>
+  <method>log</method>
+  <thread>15</thread>
+  <message>File close: Success.</message>
+</record>
+</log>
