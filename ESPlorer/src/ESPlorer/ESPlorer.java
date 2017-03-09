@@ -47,7 +47,7 @@ public class ESPlorer extends javax.swing.JFrame {
     public static boolean pOpen = false;
     public static boolean sOpen = false;
     public static boolean portJustOpen = false;
-    public static final String version = "v0.2.0-rc5";
+    public static final String version = "v0.3.0-rc1";  //http://semver.org/spec/v2.0.0.html
     public static ArrayList<String> LAF;
     public static ArrayList<String> LAFclass;
     public static Preferences prefs;
@@ -157,18 +157,18 @@ public class ESPlorer extends javax.swing.JFrame {
         FileLayeredPane = new javax.swing.JLayeredPane();
         TextScroll = new org.fife.ui.rtextarea.RTextScrollPane();
         TextEditor = new org.fife.ui.rsyntaxtextarea.RSyntaxTextArea();
-        LeftExtraButtons = new javax.swing.JLayeredPane();
-        FileDo1 = new javax.swing.JButton();
-        FileCompile = new javax.swing.JButton();
-        FileSaveCompileDoLC = new javax.swing.JButton();
-        FileUploadBin = new javax.swing.JButton();
-        FileCompileDoLC = new javax.swing.JButton();
-        FileCompileDoLC2 = new javax.swing.JButton();
-        FileCompileDoLC3 = new javax.swing.JButton();
-        FileCompile1 = new javax.swing.JButton();
+        ProgressBar = new javax.swing.JProgressBar();
         Busy = new javax.swing.JLabel();
         FilePathLabel = new javax.swing.JLabel();
-        ProgressBar = new javax.swing.JProgressBar();
+        LeftExtraButtons = new javax.swing.JLayeredPane();
+        FileSaveCompileDoLC = new javax.swing.JButton();
+        FileDo1 = new javax.swing.JButton();
+        FileCompile = new javax.swing.JButton();
+        FileCompileDoLC2 = new javax.swing.JButton();
+        FileCompile1 = new javax.swing.JButton();
+        FileUploadBin = new javax.swing.JButton();
+        FileCompileDoLC = new javax.swing.JButton();
+        FileCompileDoLC3 = new javax.swing.JButton();
         LeftMainButtons = new javax.swing.JLayeredPane();
         FileSaveESP = new javax.swing.JToggleButton();
         FileSendESP = new javax.swing.JToggleButton();
@@ -445,7 +445,6 @@ public class ESPlorer extends javax.swing.JFrame {
         RightBasePane = new javax.swing.JLayeredPane();
         LEDPanel = new javax.swing.JLayeredPane();
         PortOpenLabel = new javax.swing.JLabel();
-        PortCTS = new javax.swing.JLabel();
         PortDTR = new javax.swing.JToggleButton();
         PortRTS = new javax.swing.JToggleButton();
         Open = new javax.swing.JToggleButton();
@@ -459,6 +458,8 @@ public class ESPlorer extends javax.swing.JFrame {
         DonateSmall = new javax.swing.JButton();
         TerminalOnlyCheckBox = new javax.swing.JCheckBox();
         EditorOnlyCheckBox = new javax.swing.JCheckBox();
+        PortCTS = new javax.swing.JLabel();
+        Parity = new javax.swing.JComboBox<>();
         RightBottomPane = new javax.swing.JLayeredPane();
         Command = new javax.swing.JComboBox();
         RightBigPane = new javax.swing.JLayeredPane();
@@ -1370,10 +1371,37 @@ public class ESPlorer extends javax.swing.JFrame {
 
         FilesTabbedPane.addTab("NewFile", FileLayeredPane);
 
+        ProgressBar.setToolTipText("");
+        ProgressBar.setOpaque(true);
+        ProgressBar.setStringPainted(true);
+
+        Busy.setBackground(new java.awt.Color(0, 153, 0));
+        Busy.setForeground(new java.awt.Color(255, 255, 255));
+        Busy.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        Busy.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/led_grey.png"))); // NOI18N
+        Busy.setText("IDLE");
+        Busy.setOpaque(true);
+
+        FilePathLabel.setText("jLabel1");
+
         LeftExtraButtons.setEnabled(false);
         LeftExtraButtons.setOpaque(true);
         LeftExtraButtons.setPreferredSize(new java.awt.Dimension(431, 66));
         LeftExtraButtons.setLayout(new java.awt.FlowLayout());
+
+        FileSaveCompileDoLC.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        FileSaveCompileDoLC.setText("Save&Compile&RunLC");
+        FileSaveCompileDoLC.setIconTextGap(0);
+        FileSaveCompileDoLC.setMargin(new java.awt.Insets(2, 0, 2, 0));
+        FileSaveCompileDoLC.setMaximumSize(new java.awt.Dimension(127, 30));
+        FileSaveCompileDoLC.setMinimumSize(new java.awt.Dimension(127, 30));
+        FileSaveCompileDoLC.setPreferredSize(new java.awt.Dimension(127, 30));
+        FileSaveCompileDoLC.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                File_SaveCompileRunLC_ActionPerformed(evt);
+            }
+        });
+        LeftExtraButtons.add(FileSaveCompileDoLC);
 
         FileDo1.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         FileDo1.setText("Save&Run");
@@ -1386,7 +1414,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FileDo1.setPreferredSize(new java.awt.Dimension(127, 30));
         FileDo1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileDo1ActionPerformed(evt);
+                File_SaveAndRun_ActionPerformed(evt);
             }
         });
         LeftExtraButtons.add(FileDo1);
@@ -1401,24 +1429,39 @@ public class ESPlorer extends javax.swing.JFrame {
         FileCompile.setPreferredSize(new java.awt.Dimension(127, 30));
         FileCompile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileCompileActionPerformed(evt);
+                File_SaveAndCompile_ActionPerformed(evt);
             }
         });
         LeftExtraButtons.add(FileCompile);
 
-        FileSaveCompileDoLC.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        FileSaveCompileDoLC.setText("Save&Compile&RunLC");
-        FileSaveCompileDoLC.setIconTextGap(0);
-        FileSaveCompileDoLC.setMargin(new java.awt.Insets(2, 0, 2, 0));
-        FileSaveCompileDoLC.setMaximumSize(new java.awt.Dimension(127, 30));
-        FileSaveCompileDoLC.setMinimumSize(new java.awt.Dimension(127, 30));
-        FileSaveCompileDoLC.setPreferredSize(new java.awt.Dimension(127, 30));
-        FileSaveCompileDoLC.addActionListener(new java.awt.event.ActionListener() {
+        FileCompileDoLC2.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        FileCompileDoLC2.setText("Save Folder");
+        FileCompileDoLC2.setToolTipText("Upload a collection of files all at once. Appends \"<foldername>/\" to the front of the files. Check out nodemcu-httpserver on Github for an example use case.");
+        FileCompileDoLC2.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        FileCompileDoLC2.setMaximumSize(new java.awt.Dimension(127, 30));
+        FileCompileDoLC2.setMinimumSize(new java.awt.Dimension(127, 30));
+        FileCompileDoLC2.setPreferredSize(new java.awt.Dimension(127, 30));
+        FileCompileDoLC2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileSaveCompileDoLCActionPerformed(evt);
+                File_SaveFolder_ActionPerformed(evt);
             }
         });
-        LeftExtraButtons.add(FileSaveCompileDoLC);
+        LeftExtraButtons.add(FileCompileDoLC2);
+
+        FileCompile1.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        FileCompile1.setText("UnusedButton1");
+        FileCompile1.setToolTipText("");
+        FileCompile1.setIconTextGap(2);
+        FileCompile1.setMargin(new java.awt.Insets(2, 2, 2, 2));
+        FileCompile1.setMaximumSize(new java.awt.Dimension(127, 30));
+        FileCompile1.setMinimumSize(new java.awt.Dimension(127, 30));
+        FileCompile1.setPreferredSize(new java.awt.Dimension(127, 30));
+        FileCompile1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                File_UnusedButton1_ActionPerformed(evt);
+            }
+        });
+        LeftExtraButtons.add(FileCompile1);
 
         FileUploadBin.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         FileUploadBin.setText("Save As init");
@@ -1431,7 +1474,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FileUploadBin.setPreferredSize(new java.awt.Dimension(127, 30));
         FileUploadBin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileUploadBinActionPerformed(evt);
+                File_UploadInit_ActionPerformed(evt);
             }
         });
         LeftExtraButtons.add(FileUploadBin);
@@ -1447,64 +1490,24 @@ public class ESPlorer extends javax.swing.JFrame {
         FileCompileDoLC.setPreferredSize(new java.awt.Dimension(127, 30));
         FileCompileDoLC.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileCompileDoLCActionPerformed(evt);
+                File_SaveAndCompileAll_ActionPerformed(evt);
             }
         });
         LeftExtraButtons.add(FileCompileDoLC);
 
-        FileCompileDoLC2.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        FileCompileDoLC2.setText("View on ESP");
-        FileCompileDoLC2.setMargin(new java.awt.Insets(2, 2, 2, 2));
-        FileCompileDoLC2.setMaximumSize(new java.awt.Dimension(127, 30));
-        FileCompileDoLC2.setMinimumSize(new java.awt.Dimension(127, 30));
-        FileCompileDoLC2.setPreferredSize(new java.awt.Dimension(127, 30));
-        FileCompileDoLC2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileCompileDoLC2ActionPerformed(evt);
-            }
-        });
-        LeftExtraButtons.add(FileCompileDoLC2);
-
         FileCompileDoLC3.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        FileCompileDoLC3.setText("View on ESP");
+        FileCompileDoLC3.setText("Save Files");
+        FileCompileDoLC3.setToolTipText("Upload a collection of files all at once. Does not rename the begining of the files.");
         FileCompileDoLC3.setMargin(new java.awt.Insets(2, 2, 2, 2));
         FileCompileDoLC3.setMaximumSize(new java.awt.Dimension(127, 30));
         FileCompileDoLC3.setMinimumSize(new java.awt.Dimension(127, 30));
         FileCompileDoLC3.setPreferredSize(new java.awt.Dimension(127, 30));
         FileCompileDoLC3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileCompileDoLC3ActionPerformed(evt);
+                File_SaveFiles_ActionPerformed(evt);
             }
         });
         LeftExtraButtons.add(FileCompileDoLC3);
-
-        FileCompile1.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        FileCompile1.setText("Save&Compile");
-        FileCompile1.setToolTipText("Recompile lua script and do lua bytecode lc file");
-        FileCompile1.setIconTextGap(2);
-        FileCompile1.setMargin(new java.awt.Insets(2, 2, 2, 2));
-        FileCompile1.setMaximumSize(new java.awt.Dimension(127, 30));
-        FileCompile1.setMinimumSize(new java.awt.Dimension(127, 30));
-        FileCompile1.setPreferredSize(new java.awt.Dimension(127, 30));
-        FileCompile1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileCompile1ActionPerformed(evt);
-            }
-        });
-        LeftExtraButtons.add(FileCompile1);
-
-        Busy.setBackground(new java.awt.Color(0, 153, 0));
-        Busy.setForeground(new java.awt.Color(255, 255, 255));
-        Busy.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        Busy.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/led_grey.png"))); // NOI18N
-        Busy.setText("IDLE");
-        Busy.setOpaque(true);
-
-        FilePathLabel.setText("jLabel1");
-
-        ProgressBar.setToolTipText("");
-        ProgressBar.setOpaque(true);
-        ProgressBar.setStringPainted(true);
 
         LeftMainButtons.setOpaque(true);
         LeftMainButtons.setLayout(new java.awt.FlowLayout());
@@ -1520,7 +1523,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FileSaveESP.setPreferredSize(new java.awt.Dimension(127, 30));
         FileSaveESP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileSaveESPActionPerformed(evt);
+                File_SaveToESP_ActionPerformed(evt);
             }
         });
         LeftMainButtons.add(FileSaveESP);
@@ -1536,14 +1539,14 @@ public class ESPlorer extends javax.swing.JFrame {
         FileSendESP.setPreferredSize(new java.awt.Dimension(127, 30));
         FileSendESP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileSendESPActionPerformed(evt);
+                File_SendToESP_ActionPerformed(evt);
             }
         });
         LeftMainButtons.add(FileSendESP);
 
         FileDo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/play.png"))); // NOI18N
-        FileDo.setText("Run");
-        FileDo.setToolTipText("Execute lua script via \"dofile\" command");
+        FileDo.setText("Run Existing");
+        FileDo.setToolTipText("Execute lua script with same name via \"dofile\" command. Note this does NOT upload the script, it uses the one stored on the ESP.");
         FileDo.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         FileDo.setIconTextGap(8);
         FileDo.setMargin(new java.awt.Insets(2, 2, 2, 2));
@@ -1552,7 +1555,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FileDo.setPreferredSize(new java.awt.Dimension(127, 30));
         FileDo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FileDoActionPerformed(evt);
+                File_RunFromEditor_ActionPerformed(evt);
             }
         });
         LeftMainButtons.add(FileDo);
@@ -1568,17 +1571,17 @@ public class ESPlorer extends javax.swing.JFrame {
         FilesUpload.setPreferredSize(new java.awt.Dimension(127, 30));
         FilesUpload.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                FilesUploadActionPerformed(evt);
+                File_UploadFile_ActionPerformed(evt);
             }
         });
         LeftMainButtons.add(FilesUpload);
 
         SriptsTab.setLayer(FilesToolBar, javax.swing.JLayeredPane.PALETTE_LAYER);
         SriptsTab.setLayer(FilesTabbedPane, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        SriptsTab.setLayer(LeftExtraButtons, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        SriptsTab.setLayer(ProgressBar, javax.swing.JLayeredPane.DEFAULT_LAYER);
         SriptsTab.setLayer(Busy, javax.swing.JLayeredPane.DEFAULT_LAYER);
         SriptsTab.setLayer(FilePathLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        SriptsTab.setLayer(ProgressBar, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        SriptsTab.setLayer(LeftExtraButtons, javax.swing.JLayeredPane.DEFAULT_LAYER);
         SriptsTab.setLayer(LeftMainButtons, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout SriptsTabLayout = new javax.swing.GroupLayout(SriptsTab);
@@ -3000,12 +3003,12 @@ public class ESPlorer extends javax.swing.JFrame {
         DelayLabel.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         DelayLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         DelayLabel.setText("Delay after answer = 0 ms");
-        DelayLabel.setToolTipText("It's not \"line delay\", as you known. It's delay between answer from ESP and send new data");
+        DelayLabel.setToolTipText("It's not \"line delay.\" It's delay between ESP acknoledge and the next send of new data.");
 
         Delay.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        Delay.setMajorTickSpacing(500);
-        Delay.setMaximum(1000);
-        Delay.setMinorTickSpacing(100);
+        Delay.setMajorTickSpacing(100);
+        Delay.setMaximum(500);
+        Delay.setMinorTickSpacing(20);
         Delay.setPaintLabels(true);
         Delay.setPaintTicks(true);
         Delay.setSnapToTicks(true);
@@ -3021,7 +3024,7 @@ public class ESPlorer extends javax.swing.JFrame {
         AnswerDelayLabel.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         AnswerDelayLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         AnswerDelayLabel.setText("Answer timeout = 3 s");
-        AnswerDelayLabel.setToolTipText("How many time we waiting answer from ESP8266");
+        AnswerDelayLabel.setToolTipText("How long we will wait for an acknoledge from ESP8266.");
 
         AnswerDelay.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         AnswerDelay.setMajorTickSpacing(5);
@@ -3039,8 +3042,8 @@ public class ESPlorer extends javax.swing.JFrame {
         });
 
         DumbMode.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        DumbMode.setText("\"Dumb Mode\", never check answers");
-        DumbMode.setToolTipText("");
+        DumbMode.setText("\"Dumb Mode\"");
+        DumbMode.setToolTipText("This never checks for acknoledge. It just assumes the ESP8266 is ready after the specified delay.");
         DumbMode.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 DumbModeItemStateChanged(evt);
@@ -5573,7 +5576,7 @@ public class ESPlorer extends javax.swing.JFrame {
         LeftBasePane.setLayout(LeftBasePaneLayout);
         LeftBasePaneLayout.setHorizontalGroup(
             LeftBasePaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(LeftTab, javax.swing.GroupLayout.DEFAULT_SIZE, 542, Short.MAX_VALUE)
+            .addComponent(LeftTab, javax.swing.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE)
         );
         LeftBasePaneLayout.setVerticalGroup(
             LeftBasePaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -5599,15 +5602,6 @@ public class ESPlorer extends javax.swing.JFrame {
         PortOpenLabel.setPreferredSize(new java.awt.Dimension(50, 25));
         PortOpenLabel.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
 
-        PortCTS.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        PortCTS.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/led_grey.png"))); // NOI18N
-        PortCTS.setText("CTS");
-        PortCTS.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        PortCTS.setMaximumSize(new java.awt.Dimension(50, 25));
-        PortCTS.setMinimumSize(new java.awt.Dimension(50, 25));
-        PortCTS.setPreferredSize(new java.awt.Dimension(50, 25));
-        PortCTS.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-
         PortDTR.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/led_grey.png"))); // NOI18N
         PortDTR.setText("DTR");
         PortDTR.setToolTipText("");
@@ -5616,7 +5610,7 @@ public class ESPlorer extends javax.swing.JFrame {
         PortDTR.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         PortDTR.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                PortDTRActionPerformed(evt);
+                Port_DTR_ActionPerformed(evt);
             }
         });
 
@@ -5628,7 +5622,7 @@ public class ESPlorer extends javax.swing.JFrame {
         PortRTS.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         PortRTS.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                PortRTSActionPerformed(evt);
+                Port_RTS_ActionPerformed(evt);
             }
         });
 
@@ -5643,7 +5637,7 @@ public class ESPlorer extends javax.swing.JFrame {
         Open.setPreferredSize(new java.awt.Dimension(80, 25));
         Open.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                OpenActionPerformed(evt);
+                Port_Open_ActionPerformed(evt);
             }
         });
 
@@ -5658,14 +5652,14 @@ public class ESPlorer extends javax.swing.JFrame {
                 SpeedItemStateChanged(evt);
             }
         });
-        Speed.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                SpeedActionPerformed(evt);
-            }
-        });
         Speed.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
                 SpeedFocusLost(evt);
+            }
+        });
+        Speed.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Port_Baud_ActionPerformed(evt);
             }
         });
 
@@ -5777,8 +5771,33 @@ public class ESPlorer extends javax.swing.JFrame {
             }
         });
 
+        PortCTS.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        PortCTS.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/led_grey.png"))); // NOI18N
+        PortCTS.setText("CTS");
+        PortCTS.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        PortCTS.setMaximumSize(new java.awt.Dimension(50, 25));
+        PortCTS.setMinimumSize(new java.awt.Dimension(50, 25));
+        PortCTS.setPreferredSize(new java.awt.Dimension(50, 25));
+        PortCTS.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+
+        Parity.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "PARITY_NONE", "PARITY_ODD", "PARITY_EVEN" }));
+        Parity.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                ParityItemStateChanged(evt);
+            }
+        });
+        Parity.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                ParityFocusLost(evt);
+            }
+        });
+        Parity.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Port_Parity_ActionPerformed(evt);
+            }
+        });
+
         LEDPanel.setLayer(PortOpenLabel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        LEDPanel.setLayer(PortCTS, javax.swing.JLayeredPane.DEFAULT_LAYER);
         LEDPanel.setLayer(PortDTR, javax.swing.JLayeredPane.DEFAULT_LAYER);
         LEDPanel.setLayer(PortRTS, javax.swing.JLayeredPane.DEFAULT_LAYER);
         LEDPanel.setLayer(Open, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -5792,6 +5811,8 @@ public class ESPlorer extends javax.swing.JFrame {
         LEDPanel.setLayer(DonateSmall, javax.swing.JLayeredPane.DEFAULT_LAYER);
         LEDPanel.setLayer(TerminalOnlyCheckBox, javax.swing.JLayeredPane.DEFAULT_LAYER);
         LEDPanel.setLayer(EditorOnlyCheckBox, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        LEDPanel.setLayer(PortCTS, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        LEDPanel.setLayer(Parity, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout LEDPanelLayout = new javax.swing.GroupLayout(LEDPanel);
         LEDPanel.setLayout(LEDPanelLayout);
@@ -5800,18 +5821,20 @@ public class ESPlorer extends javax.swing.JFrame {
             .addGroup(LEDPanelLayout.createSequentialGroup()
                 .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(LEDPanelLayout.createSequentialGroup()
-                        .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(LEDPanelLayout.createSequentialGroup()
                                 .addComponent(PortDTR)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(PortRTS))
                             .addGroup(LEDPanelLayout.createSequentialGroup()
                                 .addComponent(PortOpenLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(PortCTS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Open, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(Open, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(Parity, 0, 107, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
                         .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(LEDPanelLayout.createSequentialGroup()
                                 .addComponent(ReScan, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -5824,12 +5847,13 @@ public class ESPlorer extends javax.swing.JFrame {
                                     .addGroup(LEDPanelLayout.createSequentialGroup()
                                         .addComponent(LF)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(EditorOnlyCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE))
+                                        .addComponent(EditorOnlyCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                     .addGroup(LEDPanelLayout.createSequentialGroup()
                                         .addComponent(CR)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(TerminalOnlyCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                             .addGroup(LEDPanelLayout.createSequentialGroup()
+                                .addGap(2, 2, 2)
                                 .addComponent(Speed, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(DonateSmall, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
@@ -5844,30 +5868,36 @@ public class ESPlorer extends javax.swing.JFrame {
                 .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LEDPanelLayout.createSequentialGroup()
                         .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(ReScan, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(LEDPanelLayout.createSequentialGroup()
-                                .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(AutoScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 19, Short.MAX_VALUE)
-                                    .addComponent(CR)
-                                    .addComponent(TerminalOnlyCheckBox))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(EOL, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(LF)
-                                    .addComponent(EditorOnlyCheckBox))))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(ReScan, javax.swing.GroupLayout.DEFAULT_SIZE, 49, Short.MAX_VALUE)
+                                    .addGroup(LEDPanelLayout.createSequentialGroup()
+                                        .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(AutoScroll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(CR)
+                                            .addComponent(TerminalOnlyCheckBox))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(EOL, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(LF)
+                                            .addComponent(EditorOnlyCheckBox))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LEDPanelLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(Parity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(4, 4, 4)))
                         .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(Speed, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(DonateSmall, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)))
+                            .addComponent(DonateSmall, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE)
+                            .addComponent(Open, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(Speed, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, LEDPanelLayout.createSequentialGroup()
-                        .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(PortOpenLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(PortCTS, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(LEDPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(PortDTR)
-                            .addComponent(PortRTS)))
-                    .addComponent(Open, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(PortRTS)))))
         );
 
         Port.getAccessibleContext().setAccessibleName("");
@@ -6034,9 +6064,9 @@ public class ESPlorer extends javax.swing.JFrame {
         );
         TerminalLogPaneLayout.setVerticalGroup(
             TerminalLogPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 421, Short.MAX_VALUE)
+            .addGap(0, 410, Short.MAX_VALUE)
             .addGroup(TerminalLogPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(RightSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE))
+                .addComponent(RightSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE))
         );
 
         RightFilesSplitPane.setLeftComponent(TerminalLogPane);
@@ -6048,6 +6078,7 @@ public class ESPlorer extends javax.swing.JFrame {
 
         NodeFileManagerPane.setComponentPopupMenu(ContextMenuFileManager);
         NodeFileManagerPane.setMaximumSize(new java.awt.Dimension(145, 145));
+        NodeFileManagerPane.setMinimumSize(new java.awt.Dimension(457, 145));
         NodeFileManagerPane.setName(""); // NOI18N
         NodeFileManagerPane.setPreferredSize(new java.awt.Dimension(145, 145));
         java.awt.FlowLayout flowLayout1 = new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 2, 2);
@@ -6166,8 +6197,8 @@ public class ESPlorer extends javax.swing.JFrame {
 
         NodeFileManagerPane.add(FileRenamePanel);
 
-        PyFileManagerPane.setMaximumSize(new java.awt.Dimension(500, 155));
-        PyFileManagerPane.setMinimumSize(new java.awt.Dimension(55, 55));
+        PyFileManagerPane.setMaximumSize(new java.awt.Dimension(500, 145));
+        PyFileManagerPane.setMinimumSize(new java.awt.Dimension(55, 145));
         PyFileManagerPane.setPreferredSize(new java.awt.Dimension(155, 155));
         PyFileManagerPane.setLayout(new java.awt.FlowLayout());
 
@@ -6217,8 +6248,8 @@ public class ESPlorer extends javax.swing.JFrame {
             FileManagersLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(FileManagersLayerLayout.createSequentialGroup()
                 .addGroup(FileManagersLayerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(PyFileManagerPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(NodeFileManagerPane, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(NodeFileManagerPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(PyFileManagerPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 433, Short.MAX_VALUE))
         );
         FileManagersLayerLayout.setVerticalGroup(
@@ -6408,7 +6439,7 @@ public class ESPlorer extends javax.swing.JFrame {
         RightBigPaneLayout.setVerticalGroup(
             RightBigPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(RightBigPaneLayout.createSequentialGroup()
-                .addComponent(RightFilesSplitPane)
+                .addComponent(RightFilesSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(RightSnippetsPane, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -6525,7 +6556,6 @@ public class ESPlorer extends javax.swing.JFrame {
         RightBasePaneLayout.setVerticalGroup(
             RightBasePaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(RightBasePaneLayout.createSequentialGroup()
-                .addGap(1, 1, 1)
                 .addComponent(LEDPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(RightBigPane)
@@ -7209,6 +7239,7 @@ public class ESPlorer extends javax.swing.JFrame {
         MainMenuBar.add(MenuLinks);
 
         MenuHelp.setText("?");
+        MenuHelp.setToolTipText("");
 
         MenuItemHelpAbout.setText("About");
         MenuItemHelpAbout.addActionListener(new java.awt.event.ActionListener() {
@@ -7240,69 +7271,9 @@ public class ESPlorer extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void PortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PortActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_PortActionPerformed
-
     private void MenuItemFileExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItemFileExitActionPerformed
         AppClose();
     }//GEN-LAST:event_MenuItemFileExitActionPerformed
-
-    private void SpeedFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_SpeedFocusLost
-        nSpeed = Integer.parseInt((String) Speed.getSelectedItem());
-    }//GEN-LAST:event_SpeedFocusLost
-
-    private void SpeedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SpeedActionPerformed
-        if (portJustOpen) {
-            log("ERROR: Communication with MCU not established.");
-            return;
-        }
-        nSpeed = Integer.parseInt((String) Speed.getSelectedItem());
-        if (pOpen) { // reconnect
-            if (OptionNodeMCU.isSelected() || FirmwareType == FIRMWARE_NODEMCU) {
-                log("Try to reconnect with baud " + Integer.toString(nSpeed) + "...");
-                btnSend("print(uart.setup(0, " + nSpeed + ", 8, 0, 1, 1 ))");
-                try {
-                    Thread.sleep(200L);
-                } catch (Exception e) {
-                }
-            } else {
-                return;
-            }
-            if (SetSerialPortParams()) {
-                log("Reconnect: Success.");
-                CheckComm();
-            }
-        }
-        UpdateLED();
-    }//GEN-LAST:event_SpeedActionPerformed
-
-    private void OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OpenActionPerformed
-        if (Open.isSelected()) {
-            if (pOpen) {
-                return;
-            }
-            try {
-                String port;
-                if (UseCustomPortName.isSelected()) {
-                    port = CustomPortName.getText().trim();
-                } else {
-                    port = Port.getSelectedItem().toString().trim();
-                }
-                prefs.put(SERIAL_PORT, port);
-                log("Serial port " + port + " save as default.");
-                int speed = Speed.getSelectedIndex();
-                prefs.putInt(SERIAL_BAUD, speed);
-                log("Baud rate " + Speed.getSelectedItem().toString().trim() + " save as default.");
-            } catch (Exception e) {
-            }
-            pOpen = portOpen();
-            Open.setSelected(pOpen);
-        } else {
-            portClose();
-        }
-        UpdateButtons();
-    }//GEN-LAST:event_OpenActionPerformed
     private void UpdateButtons() {
         pOpen = Open.isSelected();
         if (pOpen && !portJustOpen) {
@@ -7465,10 +7436,6 @@ public class ESPlorer extends javax.swing.JFrame {
             RightSplitPane.setDividerLocation(RightSplitPane.getHeight() - RightSplitPane.getDividerSize());
         }
     }
-    private void ReScanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReScanActionPerformed
-        PortFinder();
-    }//GEN-LAST:event_ReScanActionPerformed
-
     private void CommandKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_CommandKeyTyped
 
     }//GEN-LAST:event_CommandKeyTyped
@@ -8641,10 +8608,6 @@ public class ESPlorer extends javax.swing.JFrame {
     private void CommandItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_CommandItemStateChanged
 
     }//GEN-LAST:event_CommandItemStateChanged
-
-    private void PortItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_PortItemStateChanged
-
-    }//GEN-LAST:event_PortItemStateChanged
     private void LoadSnippets() {
         String suffix;
         if (OptionNodeMCU.isSelected()) {
@@ -8945,11 +8908,6 @@ public class ESPlorer extends javax.swing.JFrame {
         MenuItemViewLogFontDec.doClick();
     }//GEN-LAST:event_MenuItemLogFontDecActionPerformed
 
-    private void SpeedItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_SpeedItemStateChanged
-        nSpeed = Integer.parseInt((String) Speed.getSelectedItem());
-
-    }//GEN-LAST:event_SpeedItemStateChanged
-
     private void LogCaretUpdate(javax.swing.event.CaretEvent evt) {//GEN-FIRST:event_LogCaretUpdate
     }//GEN-LAST:event_LogCaretUpdate
 
@@ -9095,44 +9053,6 @@ public class ESPlorer extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_RightSplitPanePropertyChange
 
-    private void AutoScrollActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutoScrollActionPerformed
-        prefs.putBoolean(AUTO_SCROLL, AutoScroll.isSelected());
-    }//GEN-LAST:event_AutoScrollActionPerformed
-
-    private void PortDTRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PortDTRActionPerformed
-        prefs.putBoolean(PORT_DTR, PortDTR.isSelected());
-        try {
-            serialPort.setDTR(PortDTR.isSelected());
-            if (PortDTR.isSelected()) {
-                log("DTR set to ON");
-            } else {
-                log("DTR set to OFF");
-            }
-        } catch (Exception e) {
-            PortDTR.setSelected(false);
-            log(e.toString());
-            log("Can't change DTR state");
-        }
-        UpdateLED();
-    }//GEN-LAST:event_PortDTRActionPerformed
-
-    private void PortRTSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PortRTSActionPerformed
-        prefs.putBoolean(PORT_RTS, PortRTS.isSelected());
-        try {
-            serialPort.setRTS(PortRTS.isSelected());
-            if (PortRTS.isSelected()) {
-                log("RTS set to ON");
-            } else {
-                log("RTS set to OFF");
-            }
-        } catch (Exception e) {
-            PortRTS.setSelected(false);
-            log(e.toString());
-            log("Can't change RTS state");
-        }
-        UpdateLED();
-    }//GEN-LAST:event_PortRTSActionPerformed
-
     private void MenuItemViewToolbarItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_MenuItemViewToolbarItemStateChanged
         prefs.putBoolean(SHOW_TOOLBAR, MenuItemViewToolbar.isSelected());
         isToolbarShow();
@@ -9185,10 +9105,6 @@ public class ESPlorer extends javax.swing.JFrame {
     private void MenuItemViewDonateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItemViewDonateActionPerformed
         // nothing
     }//GEN-LAST:event_MenuItemViewDonateActionPerformed
-
-    private void DonateSmallActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DonateSmallActionPerformed
-        goLink(donate_uri);
-    }//GEN-LAST:event_DonateSmallActionPerformed
 
     private void MenuItemLinksBuyDevBoardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItemLinksBuyDevBoardActionPerformed
         goLink(buy_nodeMCU);
@@ -9259,10 +9175,6 @@ public class ESPlorer extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosed
 
-    private void EOLItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_EOLItemStateChanged
-        Terminal.setEOLMarkersVisible(EOL.isSelected());
-    }//GEN-LAST:event_EOLItemStateChanged
-
     private void MenuItemViewLF1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItemViewLF1ActionPerformed
         String lclass = LAFclass.get(Integer.parseInt(evt.getActionCommand()));
         prefs.put("LAF", lclass);
@@ -9288,10 +9200,6 @@ public class ESPlorer extends javax.swing.JFrame {
     private void MenuItemViewTerminalOnlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_MenuItemViewTerminalOnlyActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_MenuItemViewTerminalOnlyActionPerformed
-
-    private void TerminalOnlyCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_TerminalOnlyCheckBoxItemStateChanged
-        MenuItemViewTerminalOnly.setSelected(TerminalOnlyCheckBox.isSelected());
-    }//GEN-LAST:event_TerminalOnlyCheckBoxItemStateChanged
 
     private void ShowFileManagerItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ShowFileManagerItemStateChanged
         MenuItemViewFileManager.setSelected(ShowFileManager.isSelected());
@@ -10021,17 +9929,22 @@ public class ESPlorer extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_cmdNodeRestartActionPerformed
 
-    private void FilesUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FilesUploadActionPerformed
+    private void File_UploadFile_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_UploadFile_ActionPerformed
         //log(evt.paramString());
-        UploadFiles();
-    }//GEN-LAST:event_FilesUploadActionPerformed
+        UploadFile();
+    }//GEN-LAST:event_File_UploadFile_ActionPerformed
 
-    private void FileDoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileDoActionPerformed
+    private void File_RunFromEditor_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_RunFromEditor_ActionPerformed
+        if (TextEditor1.get(iTab).getText().length() == 0) {
+            FileSaveESP.setSelected(false);
+            JOptionPane.showMessageDialog(null, "File with blank name cannot exit.");
+            return;
+        }
         String cmd = "dofile('" + iFile.get(iTab).getName() + "')";
         btnSend(cmd);
-    }//GEN-LAST:event_FileDoActionPerformed
+    }//GEN-LAST:event_File_RunFromEditor_ActionPerformed
 
-    private void FileSendESPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileSendESPActionPerformed
+    private void File_SendToESP_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_SendToESP_ActionPerformed
         if (FileSendESP.isSelected()) {
             if (TextEditor1.get(iTab).getText().length() == 0) {
                 JOptionPane.showMessageDialog(null, "File empty.");
@@ -10042,9 +9955,9 @@ public class ESPlorer extends javax.swing.JFrame {
         } else {
             StopSend();
         }
-    }//GEN-LAST:event_FileSendESPActionPerformed
+    }//GEN-LAST:event_File_SendToESP_ActionPerformed
 
-    private void FileSaveESPActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileSaveESPActionPerformed
+    private void File_SaveToESP_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_SaveToESP_ActionPerformed
         if (!FileSaveESP.isSelected()) {
             StopSend();
             return;
@@ -10078,36 +9991,44 @@ public class ESPlorer extends javax.swing.JFrame {
         } else {
             nodeSaveFileESP(fName);
         }
-    }//GEN-LAST:event_FileSaveESPActionPerformed
+    }//GEN-LAST:event_File_SaveToESP_ActionPerformed
 
-    private void FileCompile1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileCompile1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_FileCompile1ActionPerformed
+    private void File_UnusedButton1_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_UnusedButton1_ActionPerformed
+        System.out.println("Test");
+    }//GEN-LAST:event_File_UnusedButton1_ActionPerformed
 
-    private void FileCompileDoLC3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileCompileDoLC3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_FileCompileDoLC3ActionPerformed
+    private void File_SaveFiles_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_SaveFiles_ActionPerformed
+        // Uploads a group of files. Does NOT rename them
+        FolderNamed = false;
+        UploadFiles();
+    }//GEN-LAST:event_File_SaveFiles_ActionPerformed
 
-    private void FileCompileDoLC2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileCompileDoLC2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_FileCompileDoLC2ActionPerformed
+    private void File_SaveFolder_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_SaveFolder_ActionPerformed
+        // Upload a folder full of files by appending "FolderName/" 
+        // to the front of the file name.
+        FolderNamed = true;
+        UploadFiles();
+    }//GEN-LAST:event_File_SaveFolder_ActionPerformed
 
-    private void FileCompileDoLCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileCompileDoLCActionPerformed
+    private void File_SaveAndCompileAll_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_SaveAndCompileAll_ActionPerformed
         String fn = iFile.get(iTab).getName();
         String[] part = fn.split(".");
-        String cmd = "node.compile('" + fn + "')\r\ndofile(\"" + part[0] + ".lc" + "\")";
+        //String cmd = "node.compile('" + fn + "')\r\ndofile(\"" + part[0] + ".lc" + "\")";
+        String cmd = "node.compile('" + fn + "')\r";
+        
         btnSend(cmd);
-    }//GEN-LAST:event_FileCompileDoLCActionPerformed
+    }//GEN-LAST:event_File_SaveAndCompileAll_ActionPerformed
 
-    private void FileUploadBinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileUploadBinActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_FileUploadBinActionPerformed
+    private void File_UploadInit_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_UploadInit_ActionPerformed
+        // Should save to the ESP8266 as an int.lua script.
+        // Alternately, it could compile it as well.
+    }//GEN-LAST:event_File_UploadInit_ActionPerformed
 
-    private void FileSaveCompileDoLCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileSaveCompileDoLCActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_FileSaveCompileDoLCActionPerformed
+    private void File_SaveCompileRunLC_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_SaveCompileRunLC_ActionPerformed
+        // Should upload the .lua file, compile it, then run
+    }//GEN-LAST:event_File_SaveCompileRunLC_ActionPerformed
 
-    private void FileCompileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileCompileActionPerformed
+    private void File_SaveAndCompile_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_SaveAndCompile_ActionPerformed
         String cmd = "node.compile('" + iFile.get(iTab).getName() + "')";
         btnSend(cmd);
         try {
@@ -10116,11 +10037,12 @@ public class ESPlorer extends javax.swing.JFrame {
         }
         LocalEcho = false;
         FileListReload.doClick();
-    }//GEN-LAST:event_FileCompileActionPerformed
+    }//GEN-LAST:event_File_SaveAndCompile_ActionPerformed
 
-    private void FileDo1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FileDo1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_FileDo1ActionPerformed
+    private void File_SaveAndRun_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_File_SaveAndRun_ActionPerformed
+        // "Save&Run" button: 
+        // Self explanitory, but currently does nothing.
+    }//GEN-LAST:event_File_SaveAndRun_ActionPerformed
 
     private void FilesTabbedPaneStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_FilesTabbedPaneStateChanged
         FileLabelUpdate();
@@ -10391,10 +10313,6 @@ public class ESPlorer extends javax.swing.JFrame {
         btnSend("import network;nic = network.WLAN(network.STA_IF);nic.scan()");
     }//GEN-LAST:event_cmdMicroPythonScanActionPerformed
 
-    private void EditorOnlyCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_EditorOnlyCheckBoxItemStateChanged
-        MenuItemViewEditorOnly.setSelected(EditorOnlyCheckBox.isSelected());
-    }//GEN-LAST:event_EditorOnlyCheckBoxItemStateChanged
-
     private void MenuItemViewEditorOnlyItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_MenuItemViewEditorOnlyItemStateChanged
         if (MenuItemViewEditorOnly.isSelected()) {
             TerminalOnlyCheckBox.setSelected(false);
@@ -10625,6 +10543,147 @@ public class ESPlorer extends javax.swing.JFrame {
     private void TxConfirmedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TxConfirmedActionPerformed
         
     }//GEN-LAST:event_TxConfirmedActionPerformed
+
+    private void EditorOnlyCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_EditorOnlyCheckBoxItemStateChanged
+        MenuItemViewEditorOnly.setSelected(EditorOnlyCheckBox.isSelected());
+    }//GEN-LAST:event_EditorOnlyCheckBoxItemStateChanged
+
+    private void TerminalOnlyCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_TerminalOnlyCheckBoxItemStateChanged
+        MenuItemViewTerminalOnly.setSelected(TerminalOnlyCheckBox.isSelected());
+    }//GEN-LAST:event_TerminalOnlyCheckBoxItemStateChanged
+
+    private void DonateSmallActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DonateSmallActionPerformed
+        goLink(donate_uri);
+    }//GEN-LAST:event_DonateSmallActionPerformed
+
+    private void EOLItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_EOLItemStateChanged
+        Terminal.setEOLMarkersVisible(EOL.isSelected());
+    }//GEN-LAST:event_EOLItemStateChanged
+
+    private void PortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PortActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_PortActionPerformed
+
+    private void PortItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_PortItemStateChanged
+
+    }//GEN-LAST:event_PortItemStateChanged
+
+    private void AutoScrollActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AutoScrollActionPerformed
+        prefs.putBoolean(AUTO_SCROLL, AutoScroll.isSelected());
+    }//GEN-LAST:event_AutoScrollActionPerformed
+
+    private void ReScanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ReScanActionPerformed
+        PortFinder();
+    }//GEN-LAST:event_ReScanActionPerformed
+
+    private void Port_Baud_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Port_Baud_ActionPerformed
+        if (portJustOpen) {
+            log("ERROR: Communication with MCU not established.");
+            return;
+        }
+        nSpeed = Integer.parseInt((String) Speed.getSelectedItem());
+        sParity = (String) Parity.getSelectedItem();
+        if (pOpen) { // reconnect
+            if (OptionNodeMCU.isSelected() || FirmwareType == FIRMWARE_NODEMCU) {
+                log("Try to reconnect with baud " + Integer.toString(nSpeed) + "...");
+                //btnSend("print(uart.setup(0, " + nSpeed + ", 8, 0, 1, 1 ))");
+                btnSend("print(uart.setup(0, " + nSpeed + ", 8, uart." + sParity + ", 1, 1 ))");
+                try {
+                    Thread.sleep(200L);
+                } catch (Exception e) {
+                }
+            } else {
+                return;
+            }
+            if (SetSerialPortParams()) {
+                log("Reconnect: Success.");
+                CheckComm();
+            }
+        }
+        UpdateLED();
+    }//GEN-LAST:event_Port_Baud_ActionPerformed
+
+    private void SpeedFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_SpeedFocusLost
+        nSpeed = Integer.parseInt((String) Speed.getSelectedItem());
+    }//GEN-LAST:event_SpeedFocusLost
+
+    private void SpeedItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_SpeedItemStateChanged
+        nSpeed = Integer.parseInt((String) Speed.getSelectedItem());
+    }//GEN-LAST:event_SpeedItemStateChanged
+
+    private void Port_Open_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Port_Open_ActionPerformed
+        if (Open.isSelected()) {
+            if (pOpen) {
+                return;
+            }
+            try {
+                String port;
+                if (UseCustomPortName.isSelected()) {
+                    port = CustomPortName.getText().trim();
+                } else {
+                    port = Port.getSelectedItem().toString().trim();
+                }
+                prefs.put(SERIAL_PORT, port);
+                log("Serial port " + port + " save as default.");
+                int speed = Speed.getSelectedIndex();
+                prefs.putInt(SERIAL_BAUD, speed);
+                log("Baud rate " + Speed.getSelectedItem().toString().trim() + " save as default.");
+            } catch (Exception e) {
+            }
+            pOpen = portOpen();
+            Open.setSelected(pOpen);
+        } else {
+            portClose();
+        }
+        UpdateButtons();
+    }//GEN-LAST:event_Port_Open_ActionPerformed
+
+    private void Port_RTS_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Port_RTS_ActionPerformed
+        prefs.putBoolean(PORT_RTS, PortRTS.isSelected());
+        try {
+            serialPort.setRTS(PortRTS.isSelected());
+            if (PortRTS.isSelected()) {
+                log("RTS set to ON");
+            } else {
+                log("RTS set to OFF");
+            }
+        } catch (Exception e) {
+            PortRTS.setSelected(false);
+            log(e.toString());
+            log("Can't change RTS state");
+        }
+        UpdateLED();
+    }//GEN-LAST:event_Port_RTS_ActionPerformed
+
+    private void Port_DTR_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Port_DTR_ActionPerformed
+        prefs.putBoolean(PORT_DTR, PortDTR.isSelected());
+        try {
+            serialPort.setDTR(PortDTR.isSelected());
+            if (PortDTR.isSelected()) {
+                log("DTR set to ON");
+            } else {
+                log("DTR set to OFF");
+            }
+        } catch (Exception e) {
+            PortDTR.setSelected(false);
+            log(e.toString());
+            log("Can't change DTR state");
+        }
+        UpdateLED();
+    }//GEN-LAST:event_Port_DTR_ActionPerformed
+
+    private void Port_Parity_ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Port_Parity_ActionPerformed
+        sParity = (String) Parity.getSelectedItem();
+    }//GEN-LAST:event_Port_Parity_ActionPerformed
+
+    private void ParityFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ParityFocusLost
+        sParity = (String) Parity.getSelectedItem();
+    }//GEN-LAST:event_ParityFocusLost
+
+    private void ParityItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_ParityItemStateChanged
+        sParity = (String) Parity.getSelectedItem();
+    }//GEN-LAST:event_ParityItemStateChanged
+    
     private void NodeFileSystemInfo() {
         String cmd = "r,u,t=file.fsinfo() print(\"Total : \"..t..\" bytes\\r\\nUsed  : \"..u..\" bytes\\r\\nRemain: \"..r..\" bytes\\r\\n\") r=nil u=nil t=nil";
         LocalEcho = false;
@@ -11040,6 +11099,7 @@ public class ESPlorer extends javax.swing.JFrame {
     private javax.swing.JLayeredPane OptionsOther;
     private javax.swing.JTextField PASS;
     private javax.swing.JTextField PASSsoftAP;
+    private javax.swing.JComboBox<String> Parity;
     private javax.swing.JComboBox Port;
     private javax.swing.JLabel PortCTS;
     private javax.swing.JToggleButton PortDTR;
@@ -11281,10 +11341,12 @@ public class ESPlorer extends javax.swing.JFrame {
     private int iTab = 0; // tab index
     private int mFileIndex = -1; // multifile index
     private String UploadFileName = "";
+    public String Directory = "";
+    public boolean FolderNamed = false;
     /* Files tab end */
     public int nSpeed = 9600;
-    public static final Logger LOGGER = Logger.getLogger(ESPlorer.class
-            .getName());
+    public String sParity = "PARITY_NONE";
+    public static final Logger LOGGER = Logger.getLogger(ESPlorer.class.getName());
     //  String s = new String();
     int save; // editor var
     String FileName = "script"; // without ext
@@ -11314,6 +11376,7 @@ public class ESPlorer extends javax.swing.JFrame {
     public ActionListener checker;
     public ActionListener taskSleep;
     public Timer timer;
+    public Timer MultiTime;
     public Timer timeout;
     public Timer sleep;
     public Timer openTimeout;
@@ -11496,6 +11559,7 @@ public class ESPlorer extends javax.swing.JFrame {
 
     private Object makeObj(final String item) {
         return new Object() {
+            @Override
             public String toString() {
                 return item;
             }
@@ -11539,10 +11603,21 @@ public class ESPlorer extends javax.swing.JFrame {
         boolean success = false;
         String portName = GetSerialPortName();
         try {
+            //Deal with Parity
+            int RS232Parity = 0;
+            if (sParity.contentEquals( "PARITY_NONE" )) {
+                RS232Parity = 0;
+            } else if (sParity.contentEquals( "PARITY_ODD" )){
+                RS232Parity = 1;
+            } else if (sParity.contentEquals( "PARITY_EVEN" )) {
+                RS232Parity = 2;
+            }
+             
             success = serialPort.setParams(nSpeed,
                     SerialPort.DATABITS_8,
                     SerialPort.STOPBITS_1,
-                    SerialPort.PARITY_NONE,
+                    //SerialPort.PARITY_NONE,
+                    RS232Parity,
                     PortRTS.isSelected(),
                     PortDTR.isSelected());
         } catch (Exception e) {
@@ -11599,6 +11674,7 @@ public class ESPlorer extends javax.swing.JFrame {
         portJustOpen = true;
         TerminalAdd("\r\nCommunication with MCU..");
         checker = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent evt) {
                 if (portJustOpen) {
                     btnSend("");  // only CR+LF
@@ -11749,6 +11825,7 @@ public class ESPlorer extends javax.swing.JFrame {
             }
             MenuItemViewLF2.setActionCommand(Integer.toString(x));
             MenuItemViewLF2.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     MenuItemViewLF1ActionPerformed(evt);
                 }
@@ -11765,6 +11842,7 @@ public class ESPlorer extends javax.swing.JFrame {
             }
             MenuItemViewLF3.setActionCommand(Integer.toString(x));
             MenuItemViewLF3.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     MenuItemViewLF1ActionPerformed(evt);
                 }
@@ -11781,6 +11859,7 @@ public class ESPlorer extends javax.swing.JFrame {
             }
             MenuItemViewLF4.setActionCommand(Integer.toString(x));
             MenuItemViewLF4.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     MenuItemViewLF1ActionPerformed(evt);
                 }
@@ -11797,6 +11876,7 @@ public class ESPlorer extends javax.swing.JFrame {
             }
             MenuItemViewLF5.setActionCommand(Integer.toString(x));
             MenuItemViewLF5.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     MenuItemViewLF1ActionPerformed(evt);
                 }
@@ -11813,6 +11893,7 @@ public class ESPlorer extends javax.swing.JFrame {
             }
             MenuItemViewLF6.setActionCommand(Integer.toString(x));
             MenuItemViewLF6.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     MenuItemViewLF1ActionPerformed(evt);
                 }
@@ -11829,6 +11910,7 @@ public class ESPlorer extends javax.swing.JFrame {
             }
             MenuItemViewLF7.setActionCommand(Integer.toString(x));
             MenuItemViewLF7.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     MenuItemViewLF1ActionPerformed(evt);
                 }
@@ -11845,6 +11927,7 @@ public class ESPlorer extends javax.swing.JFrame {
             }
             MenuItemViewLF8.setActionCommand(Integer.toString(x));
             MenuItemViewLF8.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     MenuItemViewLF1ActionPerformed(evt);
                 }
@@ -11861,6 +11944,7 @@ public class ESPlorer extends javax.swing.JFrame {
             }
             MenuItemViewLF9.setActionCommand(Integer.toString(x));
             MenuItemViewLF9.addActionListener(new java.awt.event.ActionListener() {
+                @Override
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     MenuItemViewLF1ActionPerformed(evt);
                 }
@@ -11880,20 +11964,20 @@ public class ESPlorer extends javax.swing.JFrame {
         SnippetText.setAntiAliasingEnabled(true);
         SnippetText.setTabsEmulated(true);
 
-        FileLayeredPane1 = new ArrayList<javax.swing.JLayeredPane>();
-        TextScroll1 = new ArrayList<org.fife.ui.rtextarea.RTextScrollPane>();
-        TextEditor1 = new ArrayList<org.fife.ui.rsyntaxtextarea.RSyntaxTextArea>();
-        FileLayeredPaneLayout1 = new ArrayList<javax.swing.GroupLayout>();
-        provider = new ArrayList<CompletionProvider>();
-        ac = new ArrayList<AutoCompletion>();
-        iFile = new ArrayList<File>();
-        FileChanged = new ArrayList<Boolean>();
+        FileLayeredPane1 = new ArrayList<>();
+        TextScroll1 = new ArrayList<>();
+        TextEditor1 = new ArrayList<>();
+        FileLayeredPaneLayout1 = new ArrayList<>();
+        provider = new ArrayList<>();
+        ac = new ArrayList<>();
+        iFile = new ArrayList<>();
+        FileChanged = new ArrayList<>();
 
-        FileAsButton = new ArrayList<javax.swing.JButton>();
-        PyFileAsButton = new ArrayList<javax.swing.JButton>();
+        FileAsButton = new ArrayList<>();
+        PyFileAsButton = new ArrayList<>();
 
-        FilePopupMenu = new ArrayList<javax.swing.JPopupMenu>();
-        FilePopupMenuItem = new ArrayList<javax.swing.JMenuItem>();
+        FilePopupMenu = new ArrayList<>();
+        FilePopupMenuItem = new ArrayList<>();
 
         FilesTabbedPane.removeAll();
 
@@ -12066,6 +12150,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FilePopupMenuItem.get(y).setToolTipText("Download file from ESP and open in new editor window");
         FilePopupMenuItem.get(y).setActionCommand(FileName + "Size:" + Integer.toString(size));
         FilePopupMenuItem.get(y).addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DownloadCommand = "EDIT";
                 FileDownload(evt.getActionCommand());
@@ -12083,6 +12168,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FilePopupMenuItem.get(y).setToolTipText("Download file from ESP and save to disk");
         FilePopupMenuItem.get(y).setActionCommand(FileName + "Size:" + Integer.toString(size));
         FilePopupMenuItem.get(y).addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 DownloadCommand = "DOWNLOAD";
                 FileDownload(evt.getActionCommand());
@@ -12100,6 +12186,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FilePopupMenuItem.get(y).setToolTipText("Execute command dofile(\"" + FileName + "\") for run this file");
         FilePopupMenuItem.get(y).setActionCommand(FileName);
         FilePopupMenuItem.get(y).addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSend("dofile(\"" + evt.getActionCommand() + "\")");
             }
@@ -12116,6 +12203,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FilePopupMenuItem.get(y).setToolTipText("Execute command node.compile(\"" + FileName + "\")");
         FilePopupMenuItem.get(y).setActionCommand(FileName);
         FilePopupMenuItem.get(y).addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnSend("node.compile(\"" + evt.getActionCommand() + "\")");
                 try {
@@ -12137,6 +12225,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FilePopupMenuItem.get(y).setToolTipText("Execute command file.rename(\"" + FileName + "\",\"NewName\")");
         FilePopupMenuItem.get(y).setActionCommand(FileName);
         FilePopupMenuItem.get(y).addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 FileRename.setText(evt.getActionCommand());
                 FileRenameLabel.setText(evt.getActionCommand());
@@ -12157,6 +12246,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FilePopupMenuItem.get(y).setToolTipText("Execute command file.remove(\"" + FileName + "\") and delete file from NodeMCU filesystem");
         FilePopupMenuItem.get(y).setActionCommand(FileName);
         FilePopupMenuItem.get(y).addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 FileRemoveESP(evt.getActionCommand());
                 // FileListReload not needed
@@ -12174,6 +12264,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FilePopupMenuItem.get(y).setToolTipText("View content of file " + FileName + " on Terminal");
         FilePopupMenuItem.get(y).setActionCommand(FileName);
         FilePopupMenuItem.get(y).addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 ViewFile(evt.getActionCommand());
             }
@@ -12190,6 +12281,7 @@ public class ESPlorer extends javax.swing.JFrame {
         FilePopupMenuItem.get(y).setToolTipText("View HexDump " + FileName + "in Terminal");
         FilePopupMenuItem.get(y).setActionCommand(FileName);
         FilePopupMenuItem.get(y).addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 HexDump(evt.getActionCommand());
             }
@@ -12229,30 +12321,36 @@ public class ESPlorer extends javax.swing.JFrame {
         TextEditor1.get(i).setBracketMatchingEnabled(true);
         TextEditor1.get(i).setTabSize(4);
         TextEditor1.get(i).addCaretListener(new javax.swing.event.CaretListener() {
+            @Override
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 TextEditorCaretUpdate(evt);
             }
         });
         TextEditor1.get(i).addActiveLineRangeListener(new org.fife.ui.rsyntaxtextarea.ActiveLineRangeListener() {
+            @Override
             public void activeLineRangeChanged(org.fife.ui.rsyntaxtextarea.ActiveLineRangeEvent evt) {
                 TextEditorActiveLineRangeChanged(evt);
             }
         });
         TextEditor1.get(i).addInputMethodListener(new java.awt.event.InputMethodListener() {
+            @Override
             public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
                 TextEditorCaretPositionChanged(evt);
             }
 
+            @Override
             public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
                 TextEditorInputMethodTextChanged(evt);
             }
         });
         TextEditor1.get(i).addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 TextEditorKeyTyped(evt);
             }
         });
         TextEditor1.get(i).addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
             public void focusGained(java.awt.event.FocusEvent evt) {
                 int i;
                 for (i = 0; i < TextEditor1.size(); i++) {
@@ -12891,9 +12989,11 @@ public class ESPlorer extends javax.swing.JFrame {
     private boolean nodeSaveFileESPTurbo(String ft) {
         boolean success = false;
         log("FileSaveESP-Turbo: Try to save file to ESP in Turbo Mode...");
-        sendBuf.add("local FILE=\"" + ft + "\" file.remove(FILE) file.open(FILE,\"w+\") uart.setup(0," + Integer.toString(nSpeed) + ",8,0,1,0)");
+        //sendBuf.add("local FILE=\"" + ft + "\" file.remove(FILE) file.open(FILE,\"w+\") uart.setup(0," + Integer.toString(nSpeed) + ",8,0,1,0)");
+        sendBuf.add("local FILE=\"" + ft + "\" file.remove(FILE) file.open(FILE,\"w+\") uart.setup(0," + Integer.toString(nSpeed) + ",8, uart." + sParity + ",1,0)");
         sendBuf.add("ESP_Receiver=function(rcvBuf) if string.match(rcvBuf,\"^ESP_cmd_close\")==nil then file.write(string.gsub(rcvBuf, \'\\r\', \'\')) uart.write(0, \"> \") else uart.on(\"data\") ");
-        sendBuf.add("file.flush() file.close() FILE=nil rcvBuf=nil ESP_Receiver=nil uart.setup(0," + Integer.toString(nSpeed) + ",8,0,1,1) str=\"\\r\\n--Done--\\r\\n> \" print(str) str=nil collectgarbage() end end uart.on(\"data\",'\\r',ESP_Receiver,0)");
+        //sendBuf.add("file.flush() file.close() FILE=nil rcvBuf=nil ESP_Receiver=nil uart.setup(0," + Integer.toString(nSpeed) + ",8,0,1,1) str=\"\\r\\n--Done--\\r\\n> \" print(str) str=nil collectgarbage() end end uart.on(\"data\",'\\r',ESP_Receiver,0)");
+        sendBuf.add("file.flush() file.close() FILE=nil rcvBuf=nil ESP_Receiver=nil uart.setup(0," + Integer.toString(nSpeed) + ",8, uart." + sParity + ",1,0) str=\"\\r\\n--Done--\\r\\n> \" print(str) str=nil collectgarbage() end end uart.on(\"data\",'\\r',ESP_Receiver,0)");
         int pos1 = 0;
         int pos2 = 0;
         int size = 254;
@@ -13290,8 +13390,8 @@ public class ESPlorer extends javax.swing.JFrame {
         }
         return success;
     }
-
-    private void UploadFiles() {
+    
+        private void UploadFile() {
         if (!pOpen) {
             log("Uploader: Serial port not open, operation FAILED.");
             return;
@@ -13325,22 +13425,115 @@ public class ESPlorer extends javax.swing.JFrame {
         SavePath();
         UploadFilesStart();
     }
+    
+    private void UploadFiles() {
+        //String Directory;
+        //File[] SelectedFiles;
+        if (!pOpen) {
+            log("MultiFile: Serial port not open, operation FAILED.");
+            return;
+        }
+        if (portJustOpen) {
+            log("MultiFile: Communication with MCU not yet established.");
+            return;
+        }
+        
+        //boolean FolderNamed.  
+        // True when we want to emulate a folder by appending the folder name
+        // To the begining of all files in that folder.
+        
+        // Rescan current Directory, for capturing content changes
+        chooser.rescanCurrentDirectory();
+        
+        // Name at the top of popup window
+        chooser.setDialogTitle("Select file to upload to ESP");
+        
+        if (FolderNamed){ // Allow only directories to be selected
+            // *TODO* Find a way to remove file filtering options from directory mode.
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            chooser.setMultiSelectionEnabled(false); // Not needed? Off by default?
+            
+        } else { // Allow, instead, for many files to be selected
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(true);
+            chooser.setMultiSelectionEnabled(true);
+        }
 
+        // Get the list of file types we can (read: should) use
+        javax.swing.filechooser.FileFilter flt = chooser.getFileFilter();
+        
+        // Reset to default filter setting
+        chooser.resetChoosableFileFilters();
+        
+        // Then use our types from above.
+        chooser.setFileFilter(flt);
+        
+        /////////////// Wait here for userinput ///////////////
+        int returnVal = chooser.showOpenDialog(LeftBasePane);
+        ///////////// Continue after we have it /////////////
+        
+        if (returnVal == JFileChooser.CANCEL_OPTION) {
+            log("MultiFile: canceled by user");
+            return;
+        }
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            
+            SavePath();
+
+            log("MultiFile: chooser selected file length: " + chooser.getSelectedFiles().length);
+
+            mFile = new ArrayList<>();
+
+            if (FolderNamed){
+                Directory = chooser.getSelectedFile().getName();
+                Directory = Directory.replace(' ', '_');
+                TerminalAdd("MultiFile: Current Directory Name: \"" + Directory + "\"\n");
+                if (mFile.addAll(Arrays.asList(chooser.getSelectedFile().listFiles()))){
+                    mFileIndex = 0;
+                } else {
+                    mFileIndex = -1;
+                    log("MultiFile: no file selected");
+                    return;
+                }
+            } else {
+                if (mFile.addAll(Arrays.asList(chooser.getSelectedFiles()))) {
+                    mFileIndex = 0;
+                } else {
+                    mFileIndex = -1;
+                    log("MultiFile: no file selected");
+                    return;
+                }
+            }
+            //TerminalAdd("MultiFile: File list size: " + mFile.size() + "\n");
+            UploadFilesStart();
+        }
+    }
+    
     private void UploadFilesStart() {
-        UploadFileName = mFile.get(mFileIndex).getName();
-        sendBuf = new ArrayList<String>();
-        PacketsData = new ArrayList<String>();
-        PacketsCRC = new ArrayList<Integer>();
-        PacketsSize = new ArrayList<Integer>();
-        PacketsNum = new ArrayList<Integer>();
-        sendPacketsCRC = new ArrayList<Boolean>();
+        if (FolderNamed){
+            UploadFileName = (Directory + "/" + mFile.get(mFileIndex).getName());
+            //UploadFileName = (Directory + File.separator + mFile.get(mFileIndex).getName());
+        } else { 
+            UploadFileName = mFile.get(mFileIndex).getName();
+        }
+        //TerminalAdd("MultiFile: File name: " + UploadFileName);  File.separator
+        //UploadFileName = mFile.get(mFileIndex).getName();
+        
+        log("Selected File Name: \"" + UploadFileName + "\"");
+        sendBuf = new ArrayList<>();
+        PacketsData = new ArrayList<>();
+        PacketsCRC = new ArrayList<>();
+        PacketsSize = new ArrayList<>();
+        PacketsNum = new ArrayList<>();
+        sendPacketsCRC = new ArrayList<>();
         rcvBuf = "";
         PacketsByte = new byte[0];
         rx_byte = new byte[0];
         tx_byte = new byte[0];
 
         if (!LoadBinaryFile(mFile.get(mFileIndex))) {
-            log("Uploader: loaded fail!");
+            log("Uploader: loading fail! Index out of bounds?");
             return;
         }
         int lastPacketSize = SplitDataToPackets();
@@ -13401,6 +13594,7 @@ public class ESPlorer extends javax.swing.JFrame {
         int delay = 10;
         j0();
         taskPerformer = new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent evt) {
                 //log("send j="+Integer.toString(j));
                 if (j < sendBuf.size()) {
@@ -13410,14 +13604,14 @@ public class ESPlorer extends javax.swing.JFrame {
                     sendBytes(sendPackets.get(j - sendBuf.size()));
                     sendPending = false;
                 } else {
-                    log("Sorry, bug found: j overflow");
+                    log("Uploader: Task Thread Error. j overflow");
                 }
             }
         };
         timer = new Timer(delay, taskPerformer);
         timer.setRepeats(false);
         log("Uploader: Start");
-        TerminalAdd("Uploading to ESP file " + UploadFileName + "...");
+        TerminalAdd("Uploading " + UploadFileName + " to ESP...");
         timer.setInitialDelay(delay);
         WatchDog();
         timer.start();
@@ -13448,7 +13642,7 @@ public class ESPlorer extends javax.swing.JFrame {
     }
 
     private int SplitDataToPackets() {
-        sendPackets = new ArrayList<byte[]>();
+        sendPackets = new ArrayList<>();
         packets = tx_byte.length / SendPacketSize;
         log("1. packets = " + Integer.toString(packets));
         if ((tx_byte.length % SendPacketSize) > 0) {
@@ -13504,6 +13698,7 @@ public class ESPlorer extends javax.swing.JFrame {
 
     private class PortFilesUploader implements SerialPortEventListener {
 
+        //@Override
         public void serialEvent(SerialPortEvent event) {
             String data, crc_parsed;
             boolean gotProperAnswer = false;
@@ -13607,6 +13802,7 @@ public class ESPlorer extends javax.swing.JFrame {
                     }
                     StopSend();
                     if (mFileIndex != -1 && mFileIndex++ < mFile.size()) {
+                        
                         UploadFilesStart();
                     }
                 }
