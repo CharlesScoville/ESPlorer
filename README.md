@@ -38,6 +38,8 @@ Required [JAVA](http://java.com/download) (Standard Edition - SE ver 7 and above
 [http://esp8266.ru/ESPlorer/](http://esp8266.ru/esplorer/)
 
 ###Latest binaries download
+(An executable build can now be found in the "dist" folder. You will still need Java to run it. It was built on Windows 7 with Oracle Netbeans+Java8 SDK combo package)
+
 [esp8266.ru](http://esp8266.ru/esplorer/#download)
 
 (An executable build can now be found in the "dist" folder. You will still need Java to run it.)
